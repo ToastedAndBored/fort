@@ -50,6 +50,23 @@ class Interpretter:
 		self.stackL = [] #стек данных
 		self.stackR = [] #стек вызова
 		self.dic = {}
+	def push(self,stack,value):
+		if stack == "R":
+			self.stackR.append(value)
+		else:
+			self.stackL.append(value)
+	def pop(self,stack,destroy=True):
+		if stack == "R":
+			a = self.stackR[-1]
+			if destroy:
+				self.stackR = self.stackR[:-1]
+			return a
+		else:
+			a = self.stackL[-1]
+			if destroy:
+				self.stackL = self.stackL[:-1]
+			return a
+
 	#If definition is int => pointer; If definition is function => call function 
 	def define(self, name, definition): 
 		self.dic[name] = definition
@@ -68,21 +85,26 @@ class Interpretter:
 				self.dic[word](self)
 				self.pointer+=1
 		return True
-
-
-def plus(inter):
-	a = inter.stackL[-1]
-	b = inter.stackL[-2]
-	inter.stackL = inter.stackL[:-2]
-	inter.stackL.append(a+b)
-
+	def word(self,name):
+		def func(definition):
+			self.define(name,definition)
+		return func
 
 
 
 
 inp = Interpretter(["3.5", "2", "+"])
 
-inp.define("+",plus)
+
+@inp.word("+")
+def plus(inp):
+	a = inp.pop("L")
+	b = inp.pop("L")
+	inp.push("L",a+b)
+
+
+#inp.define("+",plus)
+
 
 while inp.step():
 	print("Данные",inp.stackL)
